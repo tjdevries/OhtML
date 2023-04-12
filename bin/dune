@@ -1,0 +1,18 @@
+(executable
+ (public_name declare)
+ (name main)
+ (modules main)
+ (libraries declare dream tyxml caqti-driver-sqlite3)
+ (preprocess (pps lwt_ppx)))
+
+(executable
+ (public_name migrate)
+ (name migrate)
+ (modules migrate)
+ (libraries
+   declare
+   sqlite3
+   dream tyxml caqti caqti-dynload caqti-lwt caqti-driver-sqlite3)
+ (preprocess (pps lwt_ppx)))
+
+(data_only_dirs _esy esy.lock lib node_modules)

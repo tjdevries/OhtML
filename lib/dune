@@ -1,0 +1,17 @@
+(library
+ (modules sql exhibit db)
+ (libraries lwt caqti-lwt caqti-driver-sqlite3 bos base)
+ (name declare)
+ (preprocess (pps ppx_blob lwt_ppx))
+ (preprocessor_deps (glob_files *.sql)))
+
+(rule
+ (targets sql.ml)
+ (deps sql.eml.ml)
+ (action (run dream_eml %{deps} --workspace %{workspace_root})))
+
+(rule
+ (targets exhibit.ml)
+ (deps exhibit.eml.ml)
+ (action (run dream_eml %{deps} --workspace %{workspace_root})))
+
