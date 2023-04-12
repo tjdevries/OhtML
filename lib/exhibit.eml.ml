@@ -1,3 +1,4 @@
+open Base
 (* https://github.com/roddyyaga/ppx_rapper *)
 
 module T = Caqti_type
@@ -69,4 +70,18 @@ let get =
     | _ -> Error (Database_error "Could not find exhibit") |> Lwt.return
 ;;
 
-let get_link id = Format.sprintf "/exhibit/%d" id
+let get_all =
+  let query =
+    let open Caqti_request.Infix in
+    (T.unit ->* T.(tup2 int string)) "SELECT id, content FROM exhibits "
+  in
+  fun (module Db : Db.DB) ->
+    let%lwt x = Db.collect_list query () |> or_error in
+    match x with
+    | Ok rows ->
+      Ok (List.map rows ~f:(fun (id, content) -> { id; content })) |> Lwt.return
+    | _ -> Error (Database_error "Could not find exhibit") |> Lwt.return
+;;
+
+let get_link id = Caml.Format.sprintf "/exhibit/%d" id
+let delete_link ex = Caml.Format.sprintf "/exhibit/%d" ex.id
