@@ -2,7 +2,7 @@
  (public_name declare)
  (name main)
  (modules main)
- (libraries declare dream tyxml caqti-driver-sqlite3)
+ (libraries declare hx dream tyxml caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))
 
 (executable

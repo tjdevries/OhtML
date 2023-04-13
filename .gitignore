@@ -33,6 +33,8 @@ duniverse/
 
 *.scip
 
+db.sqlite
+
 node_modules/
 _esy/
 esy.lock/

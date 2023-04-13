@@ -1,20 +1,25 @@
 let _ = Declare.Sql.list_comments
-let hx_post link = Tyxml.Html.Unsafe.string_attrib "hx-post" link
-let hx_get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link
-let hx_delete str = Tyxml.Html.Unsafe.string_attrib "hx-delete" str
-let hx_swap str = Tyxml.Html.Unsafe.string_attrib "hx-swap" str
-let hx_target str = Tyxml.Html.Unsafe.string_attrib "hx-target" str
+
+(*
+The hx-target attribute allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
+
+a CSS query selector of the element to target
+this which indicates that the element that the hx-target attribute is on is the target next <CSS selector> which will scan the DOM forward for the first element that matches the given CSS selector. (e.g. next .error will target the closest following sibling element with error class)
+previous <CSS selector> which will scan the DOM backwards for the first element that matches the given CSS selector. (e.g previous .error will target the closest previous sibling with error class)
+closest <CSS selector> which will find the closest parent ancestor that matches the given CSS selector. (e.g. closest table will target the closest parent table to the element)
+find <CSS selector> which will find the first child descendant element that matches the given CSS selector. (e.g find tr will target the first child descendant row to the element)
+*)
 
 let make_swapper route content t =
   let open Tyxml.Html in
   div
     ~a:[ a_class [ "sample-transition" ] ]
-    [ h1 [ txt content ]
+    [ h1 [ txt "hey begin: "; txt content ]
     ; button
         ~a:
-          [ hx_get route
-          ; hx_swap "outerHTML transition:true"
-          ; hx_target "closest div"
+          [ Hx.get route
+          ; Hx.swap ~transition:true OuterHTML
+          ; Hx.target (Closest "div")
           ]
         [ txt t ]
     ]
@@ -25,20 +30,23 @@ let mk_header title_text =
   head
     (title (txt title_text))
     [ link ~rel:[ `Stylesheet ] ~href:"/static/home.css" ()
+      (* ; script ~a:[ a_mime_type "module"; a_src "https://cdn.skypack.dev/twind/shim" ] (txt "") *)
     ; script ~a:[ a_src "https://unpkg.com/htmx.org@1.9.0" ] (txt "")
     ]
 ;;
+
+type my_int = private int
 
 let greet _ who =
   let open Tyxml.Html in
   let _ = [ "Good morning"; who; "!" ] |> List.map txt in
   html
-    (mk_header "OhTML")
+    (mk_header "OhtML")
     (body
        [ h1 [ txt "Good morning, "; txt who; txt "!" ]
-       ; div ~a:[ a_id "counter" ] [ txt "0" ]
+       ; div ~a:[ a_id "counter"; a_class [ "bg-gray-200" ] ] [ txt "0" ]
        ; h2 [ txt "not affiliated with rust foundation, btw" ]
-       ; button ~a:[ hx_post "/increment" ] [ txt "Increment" ]
+       ; button ~a:[ Hx.post "/increment" ] [ txt "Increment" ]
        ; form (* Tyxml.Unsafe.data *)
            ~a:[ a_action "/exhibit/"; a_method `Post ]
            [ input ~a:[ a_name "content" ] () ]
@@ -48,27 +56,26 @@ let greet _ who =
 
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
-let format_one_exhibit (ex : Declare.Exhibit.exhibit) =
+let get_one_exhibit (ex : Declare.Exhibit.exhibit) =
   let open Tyxml.Html in
   div
     [ txt (string_of_int ex.id)
     ; txt ex.content
     ; button
         ~a:
-          [ hx_delete @@ Declare.Exhibit.delete_link ex
-          ; hx_swap "outerHTML"
-          ; hx_target "closest div"
+          [ Hx.delete (Declare.Exhibit.delete_link ex)
+          ; Hx.swap OuterHTML
+          ; Hx.target (Closest "div")
           ]
         [ txt "delete" ]
     ]
 ;;
 
 let format_exhibits request =
-  let _ = request in
   match%lwt Dream.sql request Declare.Exhibit.get_all with
   | Ok exhibits ->
     let open Tyxml.Html in
-    let exhibits = List.map format_one_exhibit exhibits in
+    let exhibits = List.map get_one_exhibit exhibits in
     html (mk_header "Exhibits") (body exhibits) |> html_to_string |> Dream.html
   | _ -> failwith "Something"
 ;;
