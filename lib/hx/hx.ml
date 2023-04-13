@@ -1,3 +1,14 @@
+(** Typesafe htmlx wrappers for OCaml. Emits attributes to be used with TyXML *)
+
+(** hx-get wrapper. TODO: Should use different link type *)
+let get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link
+
+(** hx-post wrapper. TODO: Shoudl use different link type *)
+let post link = Tyxml.Html.Unsafe.string_attrib "hx-post" link
+
+(** hx-delete wrapper. TODO: Should use different link type *)
+let delete str = Tyxml.Html.Unsafe.string_attrib "hx-delete" str
+
 module TargetType = struct
   type t =
     | This
@@ -15,6 +26,7 @@ module TargetType = struct
   ;;
 end
 
+(** Typesafe hx-target wrapper *)
 let target t =
   Tyxml.Html.Unsafe.string_attrib "hx-target" (TargetType.to_string t)
 ;;
@@ -66,6 +78,7 @@ module SwapType = struct
   ;;
 end
 
+(** Typesafe hx-swap wrapper *)
 let swap ?transition attr =
   let open SwapType in
   to_attr
@@ -73,9 +86,3 @@ let swap ?transition attr =
     ; modifiers = Option.map transition ~f:(fun transition -> { transition })
     }
 ;;
-
-(** hx-get wrapper. TODO: Should use different type *)
-let get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link
-
-let post link = Tyxml.Html.Unsafe.string_attrib "hx-post" link
-let delete str = Tyxml.Html.Unsafe.string_attrib "hx-delete" str
