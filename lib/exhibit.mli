@@ -3,17 +3,15 @@ type exhibit =
   ; content : string
   }
 
-type error = Database_error of string
-
 (* Migrations-related helper functions. *)
-val migrate : Db.t -> (unit, error) result Lwt.t
-val rollback : Db.t -> (unit, error) result Lwt.t
+val migrate : Database.t -> (unit, Database.error) result Lwt.t
+val rollback : Database.t -> (unit, Database.error) result Lwt.t
 
 (* Core functions *)
-val add : string -> Db.t -> (unit, error) result Lwt.t
-val get : int -> Db.t -> (exhibit, error) result Lwt.t
-val get_all : Db.t -> (exhibit list, error) result Lwt.t
-val remove : int -> Db.t -> (unit, error) result Lwt.t
+val add : string -> Database.t -> (unit, Database.error) result Lwt.t
+val get : int -> Database.t -> (exhibit, Database.error) result Lwt.t
+val get_all : Database.t -> (exhibit list, Database.error) result Lwt.t
+val remove : int -> Database.t -> (unit, Database.error) result Lwt.t
 
 (* url functions *)
 val get_link : int -> string

@@ -146,5 +146,12 @@ let () =
            | _ ->
              Format.printf "  bad request: s@.";
              Dream.empty `Bad_Request)
+       ; Dream.post "/user/:id" (fun request ->
+           let module User = Declare.Resource.User in
+           let id = Dream.param request "id" in
+           let%lwt user = Dream.sql request (User.read (int_of_string id)) in
+           match user with
+           | Ok user -> Dream.html @@ User.format (user |> Option.get)
+           | _ -> Dream.empty `Not_Found)
        ]
 ;;

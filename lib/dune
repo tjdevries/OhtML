@@ -1,8 +1,8 @@
 (library
- (modules sql exhibit db)
- (libraries lwt caqti-lwt caqti-driver-sqlite3 bos base)
+ (modules sql exhibit database resource)
+ (libraries lwt caqti-lwt caqti-driver-sqlite3 bos base ppx_rapper_lwt tyxml)
  (name declare)
- (preprocess (pps ppx_blob lwt_ppx))
+ (preprocess (pps ppx_rapper ppx_blob lwt_ppx))
  (preprocessor_deps (glob_files *.sql)))
 
 (rule

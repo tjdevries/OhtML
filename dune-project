@@ -20,6 +20,7 @@
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune dream tyxml caqti-lwt caqti-driver-sqlite3
+          ppx_rapper ppx_rapper_lwt
           ppx_blob)
  (tags
   (topics "to describe" your project)))
