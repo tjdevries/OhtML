@@ -1,4 +1,4 @@
-let _ = Declare.Sql.list_comments
+let _ = Ohtml.Sql.list_comments
 
 (*
 The hx-target attribute allows you to target a different element for swapping than the one issuing the AJAX request. The value of this attribute can be:
@@ -56,14 +56,14 @@ let greet _ who =
 
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
-let get_one_exhibit (ex : Declare.Exhibit.exhibit) =
+let get_one_exhibit (ex : Ohtml.Exhibit.exhibit) =
   let open Tyxml.Html in
   div
     [ txt (string_of_int ex.id)
     ; txt ex.content
     ; button
         ~a:
-          [ Hx.delete (Declare.Exhibit.delete_link ex)
+          [ Hx.delete (Ohtml.Exhibit.delete_link ex)
           ; Hx.swap OuterHTML
           ; Hx.target (Closest "div")
           ]
@@ -72,7 +72,7 @@ let get_one_exhibit (ex : Declare.Exhibit.exhibit) =
 ;;
 
 let format_exhibits request =
-  match%lwt Dream.sql request Declare.Exhibit.get_all with
+  match%lwt Dream.sql request Ohtml.Exhibit.get_all with
   | Ok exhibits ->
     let open Tyxml.Html in
     let exhibits = List.map get_one_exhibit exhibits in
@@ -82,7 +82,7 @@ let format_exhibits request =
 
 let counter = ref 0
 
-let format_exhibit (exhibit : Declare.Exhibit.exhibit) =
+let format_exhibit (exhibit : Ohtml.Exhibit.exhibit) =
   let open Tyxml.Html in
   div
     ~a:[ a_id ("exhibit-" ^ string_of_int exhibit.id) ]
@@ -109,7 +109,7 @@ let () =
        ; Dream.delete "/exhibit/:id" (fun request ->
            let id = Dream.param request "id" in
            let%lwt exhibit =
-             Dream.sql request (Declare.Exhibit.remove (int_of_string id))
+             Dream.sql request (Ohtml.Exhibit.remove (int_of_string id))
            in
            match exhibit with
            | Ok _ -> Dream.html "deleted"
@@ -117,7 +117,7 @@ let () =
        ; Dream.get "/exhibit/:id" (fun request ->
            let id = Dream.param request "id" in
            let%lwt exhibit =
-             Dream.sql request (Declare.Exhibit.get (int_of_string id))
+             Dream.sql request (Ohtml.Exhibit.get (int_of_string id))
            in
            match exhibit with
            | Ok exhibit -> Dream.html @@ format_exhibit exhibit
@@ -137,7 +137,7 @@ let () =
            match%lwt Dream.form ~csrf:false request with
            | `Ok [ ("content", content) ] ->
              Format.printf "  content: %s@." content;
-             let%lwt _ = Dream.sql request (Declare.Exhibit.add content) in
+             let%lwt _ = Dream.sql request (Ohtml.Exhibit.add content) in
              Dream.html @@ html_to_string @@ greet request " POSTED "
              (* Dream.redirect request "/" *)
            | `Ok something ->
@@ -146,6 +146,6 @@ let () =
            | _ ->
              Format.printf "  bad request: s@.";
              Dream.empty `Bad_Request)
-       ; Dream.get "/user/:id" Declare.Resource.User.route_get
+       ; Dream.get "/user/:id" Ohtml.Resource.User.route_get
        ]
 ;;
