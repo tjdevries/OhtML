@@ -1,17 +1,5 @@
 open Lwt_result.Syntax
 
-module M : sig
-  type t
-
-  val make : int -> t
-  val unmake : t -> int
-end = struct
-  type t = int
-
-  let make (x : int) = x
-  let unmake (x : t) = x
-end
-
 module type RESOURCE = sig
   type t
   type data
@@ -38,6 +26,14 @@ module Resource (T : RESOURCE) = struct
   ;;
 
   let format t = T.format t |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())
+
+  let route_get request =
+    let id = Dream.param request "id" in
+    let%lwt resource = Dream.sql request (read (int_of_string id)) in
+    match resource with
+    | Ok (Some resource) -> Dream.html @@ format resource
+    | _ -> Dream.empty `Not_Found
+  ;;
 end
 
 module UserImpl = struct
