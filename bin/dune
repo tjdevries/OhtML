@@ -1,8 +1,8 @@
 (executable
- (public_name declare)
+ (public_name ohtml)
  (name main)
  (modules main)
- (libraries declare hx dream tyxml caqti-driver-sqlite3)
+ (libraries ohtml hx dream tyxml caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))
 
 (executable
@@ -10,9 +10,7 @@
  (name migrate)
  (modules migrate)
  (libraries
-   declare
+   ohtml
    sqlite3
    dream tyxml caqti caqti-dynload caqti-lwt caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))
-
-(data_only_dirs _esy esy.lock lib node_modules)

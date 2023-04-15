@@ -13,8 +13,8 @@ let main () =
   (* Migrate new db *)
   let connection = Uri.of_string "sqlite3:db.sqlite" in
   let%lwt connection = Caqti_lwt.connect connection |> unwrap in
-  let%lwt _ = Declare.Sql.migrate connection in
-  Declare.Sql.populate connection
+  let%lwt _ = Ohtml.Sql.migrate connection in
+  Ohtml.Sql.populate connection
 ;;
 
 (* Lwt_main.run connection *)
