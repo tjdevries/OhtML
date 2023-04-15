@@ -7,6 +7,8 @@ depends: [
   "base" {= "v0.15.1" & ?vendor}
   "base-bigarray" {= "base"}
   "base-bytes" {= "base+dune" & ?vendor}
+  "base-domains" {= "base"}
+  "base-nnp" {= "base"}
   "base-threads" {= "base"}
   "base-unix" {= "base"}
   "base64" {= "3.5.1" & ?vendor}
@@ -63,10 +65,10 @@ depends: [
   "mtime" {= "2.0.0+dune" & ?vendor}
   "multipart_form" {= "0.4.1" & ?vendor}
   "multipart_form-lwt" {= "0.4.1" & ?vendor}
-  "ocaml" {= "4.14.1"}
-  "ocaml-base-compiler" {= "4.14.1"}
+  "ocaml" {= "5.0.0"}
+  "ocaml-base-compiler" {= "5.0.0"}
   "ocaml-compiler-libs" {= "v0.12.4" & ?vendor}
-  "ocaml-config" {= "2"}
+  "ocaml-config" {= "3"}
   "ocaml-options-vanilla" {= "1"}
   "ocaml-syntax-shims" {= "1.0.0" & ?vendor}
   "ocamlfind" {= "1.9.5+dune" & ?vendor}
@@ -246,15 +248,15 @@ pin-depends: [
   ]
   [
     "dream.1.0.0~alpha5"
-    "https://github.com/aantron/dream/releases/download/1.0.0-alpha5/dream-1.0.0-alpha5.tar.gz"
+    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
   ]
   [
     "dream-httpaf.1.0.0~alpha2"
-    "https://github.com/aantron/dream/releases/download/1.0.0-alpha5/dream-1.0.0-alpha5.tar.gz"
+    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
   ]
   [
     "dream-pure.1.0.0~alpha2"
-    "https://github.com/aantron/dream/releases/download/1.0.0-alpha5/dream-1.0.0-alpha5.tar.gz"
+    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
   ]
   [
     "dune-configurator.3.7.1"
@@ -494,9 +496,8 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/aantron/dream/releases/download/1.0.0-alpha5/dream-1.0.0-alpha5.tar.gz"
+    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
     "dream"
-    ["md5=de6f6908ae899c9e85f2c751a0263932"]
   ]
   [
     "https://github.com/andreas/ocaml-graphql-server/releases/download/0.14.0/graphql-0.14.0.tbz"

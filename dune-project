@@ -13,9 +13,10 @@
  (name ohtml)
  (synopsis "OhtML (Oatmeal) is a web framework where you get to have fun.")
  (description "No, seriously. The goal really is to have fun")
- (depends (ocaml (< "5.0"))
+ (depends (ocaml (>= "5.0"))
           dune
-          dream tyxml
+          dream
+          tyxml
           bos
           conf-libssl
           caqti-lwt caqti-driver-sqlite3

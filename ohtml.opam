@@ -8,7 +8,7 @@ license: "MIT"
 homepage: "https://github.com/tjdevries/OhtML"
 bug-reports: "https://github.com/tjdevries/OhtML/issues"
 depends: [
-  "ocaml" {< "5.0"}
+  "ocaml" {>= "5.0"}
   "dune" {>= "3.7"}
   "dream"
   "tyxml"
