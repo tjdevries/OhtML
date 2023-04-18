@@ -19,6 +19,7 @@ depends: [
   "camlp-streams" {= "5.0.1" & ?vendor}
   "caqti" {= "1.9.0" & ?vendor}
   "caqti-driver-sqlite3" {= "1.9.0" & ?vendor}
+  "caqti-dynload" {= "1.3.0" & ?vendor}
   "caqti-lwt" {= "1.9.0" & ?vendor}
   "cmdliner" {= "1.1.1+dune" & ?vendor}
   "conf-libev" {= "4-12"}
@@ -74,7 +75,7 @@ depends: [
   "ocamlfind" {= "1.9.5+dune" & ?vendor}
   "ocplib-endian" {= "1.2" & ?vendor}
   "pecu" {= "0.6" & ?vendor}
-  "pg_query" {= "0.9.7" & ?vendor}
+  "pg_query" {= "0.9.8" & ?vendor}
   "ppx_derivers" {= "1.2.1" & ?vendor}
   "ppx_deriving" {= "5.2.1" & ?vendor}
   "ppx_rapper" {= "3.1.0" & ?vendor}
@@ -215,6 +216,10 @@ pin-depends: [
     "https://github.com/paurkedal/ocaml-caqti/releases/download/v1.9.0/caqti-v1.9.0.tbz"
   ]
   [
+    "caqti-dynload.1.3.0"
+    "https://github.com/paurkedal/ocaml-caqti/releases/download/v1.9.0/caqti-v1.9.0.tbz"
+  ]
+  [
     "caqti-lwt.1.9.0"
     "https://github.com/paurkedal/ocaml-caqti/releases/download/v1.9.0/caqti-v1.9.0.tbz"
   ]
@@ -319,8 +324,14 @@ pin-depends: [
     "logs.0.7.0+dune2"
     "https://github.com/dune-universe/logs/releases/download/v0.7.0%2Bdune2/logs-0.7.0.dune2.tbz"
   ]
-  ["lwt.5.6.1" "https://github.com/ocsigen/lwt/archive/5.6.1.tar.gz"]
-  ["lwt_ppx.2.1.0" "https://github.com/ocsigen/lwt/archive/5.6.1.tar.gz"]
+  [
+    "lwt.5.6.1"
+    "git+https://github.com/ocsigen/lwt.git#cc05e2bda6c34126a3fd8d150ee7cddb3b8a440b"
+  ]
+  [
+    "lwt_ppx.2.1.0"
+    "git+https://github.com/ocsigen/lwt.git#cc05e2bda6c34126a3fd8d150ee7cddb3b8a440b"
+  ]
   [
     "lwt_ssl.1.2.0"
     "https://github.com/ocsigen/lwt_ssl/releases/download/1.2.0/lwt_ssl-1.2.0.tbz"
@@ -390,8 +401,8 @@ pin-depends: [
     "https://github.com/mirage/pecu/releases/download/v0.6/pecu-v0.6.tbz"
   ]
   [
-    "pg_query.0.9.7"
-    "https://github.com/roddyyaga/pg_query-ocaml/archive/0.9.7.tar.gz"
+    "pg_query.0.9.8"
+    "git+https://github.com/roddyyaga/pg_query-ocaml.git#9b37b2b2937fe9e1e52f778cd897acef458e8327"
   ]
   [
     "ppx_derivers.1.2.1"
@@ -878,12 +889,8 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/ocsigen/lwt/archive/5.6.1.tar.gz"
+    "git+https://github.com/ocsigen/lwt.git#cc05e2bda6c34126a3fd8d150ee7cddb3b8a440b"
     "lwt"
-    [
-      "md5=279024789a0ec84a9d97d98bad847f97"
-      "sha512=698875bd3bfcd5baa47eb48e412f442d289f9972421321541860ebe110b9af1949c3fbc253768495726ec547fe4ba25483cd97ff39bc668496fba95b2ed9edd8"
-    ]
   ]
   [
     "https://github.com/ocsigen/lwt_ssl/releases/download/1.2.0/lwt_ssl-1.2.0.tbz"
@@ -926,12 +933,8 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/roddyyaga/pg_query-ocaml/archive/0.9.7.tar.gz"
+    "git+https://github.com/roddyyaga/pg_query-ocaml.git#9b37b2b2937fe9e1e52f778cd897acef458e8327"
     "pg_query-ocaml"
-    [
-      "md5=0f60f8c91c556be3f3a7e8f3f8305bb2"
-      "sha512=0efa2224ef75f1cea12437673da677964de0d56616e2166e2a794d6f6fd431b44dade1e18455cfeeab12576265f189030df4cd614f764970113476fc036633d2"
-    ]
   ]
   [
     "https://github.com/roddyyaga/ppx_rapper/archive/3.1.0.tar.gz"

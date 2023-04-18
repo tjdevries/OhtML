@@ -2,7 +2,8 @@
  (public_name ohtml)
  (name main)
  (modules main)
- (libraries ohtml hx dream tyxml caqti-driver-sqlite3)
+ (libraries ohtml hx dream tyxml
+            caqti caqti-lwt caqti-dynload caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))
 
 (executable
@@ -11,6 +12,5 @@
  (modules migrate)
  (libraries
    ohtml
-   sqlite3
-   dream tyxml caqti caqti-dynload caqti-lwt caqti-driver-sqlite3)
+   dream tyxml caqti caqti-lwt caqti-dynload caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))

@@ -23,8 +23,6 @@ let mk_header title_text =
     ]
 ;;
 
-type my_int = private int
-
 let greet _ who =
   let open Tyxml.Html in
   let _ = [ "Good morning"; who; "!" ] |> List.map txt in
@@ -35,7 +33,7 @@ let greet _ who =
        ; div ~a:[ a_id "counter"; a_class [ "bg-gray-200" ] ] [ txt "0" ]
        ; h2 [ txt "not affiliated with rust foundation, btw" ]
        ; button ~a:[ Hx.post "/increment" ] [ txt "Increment" ]
-       ; form (* Tyxml.Unsafe.data *)
+       ; form
            ~a:[ a_action "/exhibit/"; a_method `Post ]
            [ input ~a:[ a_name "content" ] () ]
        ; make_swapper "/transition" "swapped content" "swap it!"
@@ -46,16 +44,20 @@ let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
 let get_one_exhibit (ex : Ohtml.Exhibit.exhibit) =
   let open Tyxml.Html in
-  div
-    [ txt (string_of_int ex.id)
-    ; txt ex.content
-    ; button
-        ~a:
-          [ Hx.delete (Ohtml.Exhibit.delete_link ex)
-          ; Hx.swap OuterHTML
-          ; Hx.target (Closest "div")
-          ]
-        [ txt "delete" ]
+  (* ; txt ex.content *)
+  tr
+    [ td [ txt @@ string_of_int ex.id ]
+    ; td [ txt ex.content ]
+    ; td [ a ~a:[ a_href ("/exhibit/" ^ string_of_int ex.id) ] [ txt "get" ] ]
+    ; td
+        [ button
+            ~a:
+              [ Hx.delete (Ohtml.Exhibit.delete_link ex)
+              ; Hx.swap OuterHTML
+              ; Hx.target (Closest "button")
+              ]
+            [ txt "delete" ]
+        ]
     ]
 ;;
 
@@ -64,18 +66,28 @@ let format_exhibits request =
   | Ok exhibits ->
     let open Tyxml.Html in
     let exhibits = List.map get_one_exhibit exhibits in
+    let header = thead [ tr [ th [ txt "id" ]; th [ txt "content" ] ] ] in
+    let exhibits = [ div [ table ~thead:header exhibits ] ] in
     html (mk_header "Exhibits") (body exhibits) |> html_to_string |> Dream.html
   | _ -> failwith "Something"
 ;;
 
 let counter = ref 0
 
-let format_exhibit (exhibit : Ohtml.Exhibit.exhibit) =
+let format_exhibit (exhibit : Ohtml.Exhibit.exhibit) (cont : string list) =
   let open Tyxml.Html in
-  div
-    ~a:[ a_id ("exhibit-" ^ string_of_int exhibit.id) ]
-    [ txt exhibit.content ]
-  |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())
+  let comments = List.map (fun c -> tr [ td [ txt c ] ]) cont in
+  let e_header = mk_header "OhtML" in
+  let e_body =
+    body
+      [ div
+          ~a:[ a_id ("exhibit-" ^ string_of_int exhibit.id) ]
+          [ txt exhibit.content
+          ; table ~thead:(thead [ tr [ th [ txt "comments" ] ] ]) comments
+          ]
+      ]
+  in
+  html e_header e_body |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())
 ;;
 
 let () =
@@ -108,7 +120,15 @@ let () =
              Dream.sql request (Ohtml.Exhibit.get (int_of_string id))
            in
            match exhibit with
-           | Ok exhibit -> Dream.html @@ format_exhibit exhibit
+           | Ok exhibit ->
+             let%lwt comments =
+               Dream.sql request (Ohtml.Exhibit.get_comments exhibit.id)
+             in
+             (match comments with
+              | Ok comments -> Dream.html @@ format_exhibit exhibit comments
+              | Error (Database_error s) ->
+                Format.printf "failed... :'( %s@." s;
+                Dream.empty `Not_Found)
            | _ -> Dream.empty `Not_Found)
        ; Dream.get "/exhibit/" (fun _ -> Dream.html "POSTED YO")
        ; Dream.get "/exhibits" (fun request -> format_exhibits request)

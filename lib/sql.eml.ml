@@ -46,22 +46,21 @@ let migrate (module Db : DB) =
   Fpath.v "./tables/"
   |> Bos.OS.Dir.contents
   |> unwrap
+  |> List.sort ~compare:(fun a b ->
+       String.compare (Fpath.to_string a) (Fpath.to_string b))
   |> List.map ~f:(fun migration -> Bos.OS.File.read migration |> unwrap)
   |> exec_strs (module Db)
 ;;
 
 let populate (module Db : DB) =
   let queries =
-    [ {|
-        INSERT INTO exhibits (content) VALUES
+    [ {| INSERT INTO exhibits (content) VALUES
           ('This is an example exhibit'),
           ('A middle exhibit'),
-          ('This is another one')
-      |}
-    ; {|
-        INSERT INTO somethin (content) VALUES
-          ('this sure is somethin')
-      |}
+          ('This is another one') |}
+    ; {| INSERT INTO comments (content, exhibit_id) VALUES
+          ('Wow, first try?', 1),
+          ('Opti is a great teacher', 1) |}
     ]
   in
   exec_strs (module Db) queries

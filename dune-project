@@ -18,6 +18,5 @@
           dream
           tyxml
           bos
-          conf-libssl
-          caqti-lwt caqti-driver-sqlite3
+          lwt caqti caqti-lwt caqti-dynload caqti-driver-sqlite3
           ppx_rapper ppx_rapper_lwt))
