@@ -1,8 +1,11 @@
 open Tyxml.Html
 
-let header = thead [ tr [ th [ txt "id" ]; th [ txt "content" ] ] ]
+(* TODO: Not sure I like this very much *)
+type t = Ohtml.Exhibit.exhibit
 
-let row (ex : Ohtml.Exhibit.exhibit) =
+let table_head = thead [ tr [ th [ txt "id" ]; th [ txt "content" ] ] ]
+
+let table_row (ex : t) =
   tr
     [ td [ txt @@ Int.to_string ex.id ]
     ; td [ txt ex.content ]

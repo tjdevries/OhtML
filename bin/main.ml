@@ -41,48 +41,15 @@ let index _ who =
 
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
-module ExhibitHTML = struct
-  open Tyxml.Html
-
-  let make_form ~target =
-    form
-      ~a:
-        [ Hx.post "/exhibit/"
-        ; Hx.target target
-        ; Hx.swap BeforeEnd (* ; Hx.boost true *)
-        ]
-      [ input ~a:[ a_name "content" ] (); button [ txt "submit" ] ]
-  ;;
-end
-
-let get_one_exhibit (ex : Ohtml.Exhibit.exhibit) =
-  let open Tyxml.Html in
-  (* ; txt ex.content *)
-  tr
-    [ td [ txt @@ string_of_int ex.id ]
-    ; td [ txt ex.content ]
-    ; td [ a ~a:[ a_href (Ohtml.Exhibit.route_for ex) ] [ txt "get" ] ]
-    ; td
-        [ button
-            ~a:
-              [ Hx.delete (Ohtml.Exhibit.route_for ex)
-              ; Hx.swap OuterHTML
-              ; Hx.target (Closest "button")
-              ]
-            [ txt "delete" ]
-        ]
-    ]
-;;
-
 let format_exhibits request =
   match%lwt Dream.sql request Ohtml.Exhibit.get_all with
   | Ok exhibits ->
     let open Tyxml.Html in
-    let header = Components.ExhibitList.header in
-    let exhibits = List.map Components.ExhibitList.row exhibits in
+    let header = Components.ExhibitList.table_head in
+    let exhibits = List.map Components.ExhibitList.table_row exhibits in
     let exhibits =
       div [ table ~thead:header exhibits ]
-      :: [ ExhibitHTML.make_form ~target:(Previous "tbody") ]
+      :: [ Components.ExhibitPost.form ~target:(Previous "tbody") ]
     in
     html (default_header "Exhibits") (body exhibits)
     |> html_to_string
@@ -149,11 +116,9 @@ let () =
            in
            match exhibit with
            | Ok exhibit ->
-             Fmt.pr "%s@."
-             @@ elt_to_string
-             @@ get_one_exhibit (Option.get exhibit);
              Dream.response
-               (elt_to_string @@ get_one_exhibit (Option.get exhibit))
+               (elt_to_string
+                @@ Components.ExhibitList.table_row (Option.get exhibit))
              |> Lwt.return
            | _ -> Dream.empty `Not_Found)
        ; Dream.get "/exhibit/:id" (fun request ->
