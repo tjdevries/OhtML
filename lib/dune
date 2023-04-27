@@ -9,10 +9,3 @@
  (targets sql.ml)
  (deps sql.eml.ml)
  (action (run dream_eml %{deps} --workspace %{workspace_root})))
-
-(rule
- (targets exhibit.ml)
- (deps exhibit.eml.ml)
- (mode promote)
- (action (run dream_eml %{deps} --workspace %{workspace_root})))
-

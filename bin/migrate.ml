@@ -8,10 +8,10 @@ let unwrap m =
 
 let main () =
   (* Kill existing db *)
-  (try Unix.unlink "db.sqlite" with
+  (try Unix.unlink "/home/tjdevries/tmp/ohtml.sqlite" with
    | _ -> ());
   (* Migrate new db *)
-  let connection = Uri.of_string "sqlite3:db.sqlite" in
+  let connection = Uri.of_string "sqlite3:/home/tjdevries/tmp/ohtml.sqlite" in
   let%lwt connection = Caqti_lwt.connect connection |> unwrap in
   let%lwt _ = Ohtml.Sql.migrate connection in
   Ohtml.Sql.populate connection

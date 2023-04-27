@@ -1,7 +1,4 @@
-#1 "lib/exhibit.eml.ml"
 open Base
-(* https://github.com/roddyyaga/ppx_rapper *)
-
 module T = Caqti_type
 
 type exhibit =
@@ -38,50 +35,47 @@ let rollback =
 (* Stub these out for now. *)
 let add =
   let query =
-    let open Caqti_request.Infix in
-    (T.string ->. T.unit) "INSERT INTO exhibits (content) VALUES ($1)"
+    [%rapper
+      get_one
+        {| INSERT INTO exhibits (content) VALUES (%string{content}) RETURNING @int{id} |}]
   in
-  fun content (module Db : Database.DB) -> Db.exec query content |> or_error
+  fun content db -> query ~content db |> or_error
 ;;
 
 let remove =
   let query =
-    let open Caqti_request.Infix in
-    (T.int ->. T.unit) "DELETE FROM exhibits WHERE id = $1"
+    [%rapper execute {| DELETE FROM exhibits WHERE id = %int{id} |}]
   in
-  fun id (module Db : Database.DB) -> Db.exec query id |> or_error
+  fun id db -> query ~id db |> or_error
 ;;
 
 let get =
   let query =
-    let open Caqti_request.Infix in
-    (T.int ->* T.(tup2 int string))
-      "SELECT id, content FROM exhibits WHERE id = $1"
+    [%rapper
+      get_opt
+        {| SELECT @int{id}, @string{content} FROM exhibits WHERE id = %int{id} |}
+        record_out]
   in
-  fun id (module Db : Database.DB) ->
-    let%lwt x = Db.collect_list query id |> or_error in
-    match x with
-    | Ok [ (id, content) ] -> Ok { id; content } |> Lwt.return
-    | _ ->
-      Error (Database.Database_error "Could not find exhibit") |> Lwt.return
+  fun id db -> query ~id db |> or_error
 ;;
 
 let get_all =
   let query =
-    let open Caqti_request.Infix in
-    (T.unit ->* T.(tup2 int string)) "SELECT id, content FROM exhibits "
+    [%rapper
+      get_many {| SELECT @int{id}, @string{content} FROM exhibits |} record_out]
   in
-  fun (module Db : Database.DB) ->
-    let%lwt x = Db.collect_list query () |> or_error in
-    match x with
-    | Ok rows ->
-      Ok (List.map rows ~f:(fun (id, content) -> { id; content })) |> Lwt.return
-    | _ ->
-      Error (Database.Database_error "Could not find exhibit") |> Lwt.return
+  fun db -> query () db |> or_error
 ;;
 
-let get_link id = Caml.Format.sprintf "/exhibit/%d" id
-let delete_link ex = Caml.Format.sprintf "/exhibit/%d" ex.id
+let route = "/exhibit"
+
+let route_for_id ?mode id =
+  match mode with
+  | Some `List -> "/exhibit/list/" ^ Int.to_string id
+  | _ -> "/exhibit/" ^ Int.to_string id
+;;
+
+let route_for ex = route_for_id ex.id
 
 let get_comments =
   let query =

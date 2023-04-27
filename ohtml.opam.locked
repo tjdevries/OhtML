@@ -27,13 +27,14 @@ depends: [
   "conf-pkg-config" {= "2"}
   "conf-sqlite3" {= "1"}
   "cppo" {= "1.6.9" & ?vendor}
-  "csexp" {= "1.5.1" & ?vendor}
+  "csexp" {= "1.5.2" & ?vendor}
   "cstruct" {= "6.2.0" & ?vendor}
   "ctypes" {= "0.20.1+dune" & ?vendor}
   "ctypes-foreign" {= "0.20.1+dune" & ?vendor}
   "digestif" {= "1.1.4" & ?vendor}
   "dream" {= "1.0.0~alpha5" & ?vendor}
   "dream-httpaf" {= "1.0.0~alpha2" & ?vendor}
+  "dream-livereload" {= "0.2.0" & ?vendor}
   "dream-pure" {= "1.0.0~alpha2" & ?vendor}
   "dune" {= "3.7.1"}
   "dune-configurator" {= "3.7.1" & ?vendor}
@@ -51,21 +52,23 @@ depends: [
   "hmap" {= "0.8.1+dune" & ?vendor}
   "integers" {= "0.7.0" & ?vendor}
   "ke" {= "0.6" & ?vendor}
+  "lambdasoup" {= "1.0.0" & ?vendor}
   "logs" {= "0.7.0+dune2" & ?vendor}
   "lwt" {= "5.6.1" & ?vendor}
   "lwt_ppx" {= "2.1.0" & ?vendor}
   "lwt_ssl" {= "1.2.0" & ?vendor}
   "magic-mime" {= "1.3.0" & ?vendor}
-  "menhir" {= "20220210" & ?vendor}
-  "menhirLib" {= "20220210" & ?vendor}
-  "menhirSdk" {= "20220210" & ?vendor}
+  "markup" {= "1.0.3" & ?vendor}
+  "menhir" {= "20230415" & ?vendor}
+  "menhirLib" {= "20230415" & ?vendor}
+  "menhirSdk" {= "20230415" & ?vendor}
   "mirage-clock" {= "4.2.0" & ?vendor}
   "mirage-crypto" {= "0.11.1" & ?vendor}
   "mirage-crypto-rng" {= "0.11.1" & ?vendor}
   "mirage-crypto-rng-lwt" {= "0.11.1" & ?vendor}
   "mtime" {= "2.0.0+dune" & ?vendor}
-  "multipart_form" {= "0.4.1" & ?vendor}
-  "multipart_form-lwt" {= "0.4.1" & ?vendor}
+  "multipart_form" {= "0.5.0" & ?vendor}
+  "multipart_form-lwt" {= "0.5.0" & ?vendor}
   "ocaml" {= "5.0.0"}
   "ocaml-base-compiler" {= "5.0.0"}
   "ocaml-compiler-libs" {= "v0.12.4" & ?vendor}
@@ -94,6 +97,7 @@ depends: [
   "stdlib-shims" {= "0.3.0" & ?vendor}
   "stringext" {= "1.6.0" & ?vendor}
   "tyxml" {= "4.5.0" & ?vendor}
+  "uchar" {= "0.0.2+dune2" & ?vendor}
   "unstrctrd" {= "0.3" & ?vendor}
   "uri" {= "4.2.0" & ?vendor}
   "uutf" {= "1.0.3+dune" & ?vendor}
@@ -232,8 +236,8 @@ pin-depends: [
     "https://github.com/ocaml-community/cppo/archive/v1.6.9.tar.gz"
   ]
   [
-    "csexp.1.5.1"
-    "https://github.com/ocaml-dune/csexp/releases/download/1.5.1/csexp-1.5.1.tbz"
+    "csexp.1.5.2"
+    "https://github.com/ocaml-dune/csexp/releases/download/1.5.2/csexp-1.5.2.tbz"
   ]
   [
     "cstruct.6.2.0"
@@ -253,15 +257,19 @@ pin-depends: [
   ]
   [
     "dream.1.0.0~alpha5"
-    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
+    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
   ]
   [
     "dream-httpaf.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
+    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
+  ]
+  [
+    "dream-livereload.0.2.0"
+    "https://github.com/tmattio/dream-livereload/releases/download/0.2.0/dream-livereload-0.2.0.tbz"
   ]
   [
     "dream-pure.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
+    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
   ]
   [
     "dune-configurator.3.7.1"
@@ -321,6 +329,10 @@ pin-depends: [
   ]
   ["ke.0.6" "https://github.com/mirage/ke/releases/download/v0.6/ke-0.6.tbz"]
   [
+    "lambdasoup.1.0.0"
+    "https://github.com/aantron/lambdasoup/archive/1.0.0.tar.gz"
+  ]
+  [
     "logs.0.7.0+dune2"
     "https://github.com/dune-universe/logs/releases/download/v0.7.0%2Bdune2/logs-0.7.0.dune2.tbz"
   ]
@@ -341,16 +353,19 @@ pin-depends: [
     "https://github.com/mirage/ocaml-magic-mime/releases/download/v1.3.0/magic-mime-1.3.0.tbz"
   ]
   [
-    "menhir.20220210"
-    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20220210/archive.tar.gz"
+    "markup.1.0.3" "https://github.com/aantron/markup.ml/archive/1.0.3.tar.gz"
   ]
   [
-    "menhirLib.20220210"
-    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20220210/archive.tar.gz"
+    "menhir.20230415"
+    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20230415/archive.tar.gz"
   ]
   [
-    "menhirSdk.20220210"
-    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20220210/archive.tar.gz"
+    "menhirLib.20230415"
+    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20230415/archive.tar.gz"
+  ]
+  [
+    "menhirSdk.20230415"
+    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20230415/archive.tar.gz"
   ]
   [
     "mirage-clock.4.2.0"
@@ -373,12 +388,12 @@ pin-depends: [
     "https://github.com/dune-universe/mtime/releases/download/2.0.0%2Bdune/mtime-2.0.0.dune.tbz"
   ]
   [
-    "multipart_form.0.4.1"
-    "https://github.com/dinosaure/multipart_form/releases/download/v0.4.1/multipart_form-0.4.1.tbz"
+    "multipart_form.0.5.0"
+    "https://github.com/dinosaure/multipart_form/releases/download/v0.5.0/multipart_form-0.5.0.tbz"
   ]
   [
-    "multipart_form-lwt.0.4.1"
-    "https://github.com/dinosaure/multipart_form/releases/download/v0.4.1/multipart_form-0.4.1.tbz"
+    "multipart_form-lwt.0.5.0"
+    "https://github.com/dinosaure/multipart_form/releases/download/v0.5.0/multipart_form-0.5.0.tbz"
   ]
   [
     "ocaml-compiler-libs.v0.12.4"
@@ -474,6 +489,10 @@ pin-depends: [
     "https://github.com/ocsigen/tyxml/releases/download/4.5.0/tyxml-4.5.0.tbz"
   ]
   [
+    "uchar.0.0.2+dune2"
+    "https://github.com/dune-universe/uchar/releases/download/v0.0.2%2Bdune2/uchar-0.0.2.dune2.tbz"
+  ]
+  [
     "unstrctrd.0.3"
     "https://github.com/dinosaure/unstrctrd/releases/download/v0.3/unstrctrd-v0.3.tbz"
   ]
@@ -507,8 +526,18 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "git+https://github.com/aantron/dream.git#599efd55fc5d0f0f3fbe776fd2ba6b17f6aeca8d"
+    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
     "dream"
+  ]
+  [
+    "https://github.com/aantron/lambdasoup/archive/1.0.0.tar.gz"
+    "lambdasoup"
+    ["md5=35d2d399d1033c0cc081b80dd1a04cc7"]
+  ]
+  [
+    "https://github.com/aantron/markup.ml/archive/1.0.3.tar.gz"
+    "markup"
+    ["md5=3609724f5408dff41b1cb43107bc24ef"]
   ]
   [
     "https://github.com/andreas/ocaml-graphql-server/releases/download/0.14.0/graphql-0.14.0.tbz"
@@ -527,11 +556,11 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/dinosaure/multipart_form/releases/download/v0.4.1/multipart_form-0.4.1.tbz"
+    "https://github.com/dinosaure/multipart_form/releases/download/v0.5.0/multipart_form-0.5.0.tbz"
     "multipart_form"
     [
-      "sha256=36268ee6fec4c53273c2c0b977a4a9f441a5c6ce586773d91d28b599b45540db"
-      "sha512=65843e8371adf80d5d52b510dd819774c0251bb36031126a77fd473e384bc873fd80000adaa8944a2e1fbb68d39a009edd18468239d87c25811cf99d56709d00"
+      "sha256=a8a36c1c0e2873ba1b3bd32ccdfb8fb6766e06612e52e36b3077a6a296a88a64"
+      "sha512=f1e95b201e5474687e31bb132ca17ab9799d9957cbc91d0d7fdc160bbcfb2b6f6a77e37fba802c5a41339cb699987667e029672d58096ebfd06fd932b352bd46"
     ]
   ]
   [
@@ -642,6 +671,14 @@ x-opam-monorepo-duniverse-dirs: [
     [
       "sha256=3726c0ddf709e1886ef9adae83bf3696fa65466cc675d2494fa6ea9da9945a9f"
       "sha512=e29d1a41fca85a301df370183740d89c6a23ceb7fa530e8ba3693917032d5784b7899b6f713fd5f66d49c3426811a65465f5709af23b3f9120017f94cd9a448e"
+    ]
+  ]
+  [
+    "https://github.com/dune-universe/uchar/releases/download/v0.0.2%2Bdune2/uchar-0.0.2.dune2.tbz"
+    "uchar"
+    [
+      "sha256=de4d427925ef25af0a605f3a91fee1c00b402bd2bea7849d05acbb225252983f"
+      "sha512=a568b7a040f3c7ebb5c15d0a9e5f84ce9c80307c132159e3f139f96db16e89e0cb4bbaadefea55557b6b9f26b79238e45223806570c6f2b95d5045ff71413d23"
     ]
   ]
   [
@@ -820,11 +857,11 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "https://github.com/ocaml-dune/csexp/releases/download/1.5.1/csexp-1.5.1.tbz"
+    "https://github.com/ocaml-dune/csexp/releases/download/1.5.2/csexp-1.5.2.tbz"
     "csexp"
     [
-      "sha256=d605e4065fa90a58800440ef2f33a2d931398bf2c22061a8acb7df845c0aac02"
-      "sha512=d785bbabaff9f6bf601399149ef0a42e5e99647b54e27f97ef1625907793dda22a45bf83e0e8a1eba2c63634c5484b54739ff0904ef556f5fc592efa38af7505"
+      "sha256=1a14dd04bb4379a41990248550628c77913a9c07f3c35c1370b6960e697787ff"
+      "sha512=be281018bcfc20d4db14894ef51c4b836d6338d2fdfe22e63d46f405f8dea7349e16f1c0ecd65f73d4c85a2a80e618cdbb8c9dafcbb9f229f04f1adca5b1973c"
     ]
   ]
   [
@@ -953,16 +990,24 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
+    "https://github.com/tmattio/dream-livereload/releases/download/0.2.0/dream-livereload-0.2.0.tbz"
+    "dream-livereload"
+    [
+      "sha256=f9650347225b2e42b2e45419f4b98435c432c0a295b25fd7e1a7dc219024f8de"
+      "sha512=ab19e04bd6f941b769f75fc10114f3f1948cb55ed65e6f4ab8ddbf51987b18594cbb5ad4af24eeb3eb24f735e967d9e0a07112f5b7e53c2fc976cb3e5b5cdee7"
+    ]
+  ]
+  [
     "https://github.com/yallop/ocaml-integers/archive/0.7.0.tar.gz"
     "ocaml-integers"
     ["md5=201cf24143d7cb9a3921d572b6e6c42c"]
   ]
   [
-    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20220210/archive.tar.gz"
+    "https://gitlab.inria.fr/fpottier/menhir/-/archive/20230415/archive.tar.gz"
     "menhir"
     [
-      "md5=e3cef220f676c4b1c16cbccb174cefe3"
-      "sha512=3063fec1d8b9fe092c8461b0689d426c7fe381a2bf3fd258dc42ceecca1719d32efbb8a18d94ada5555c38175ea352da3adbb239fdbcbcf52c3a5c85a4d9586f"
+      "md5=7c4b51e1b666711af04f7832ebc90618"
+      "sha512=aa8a34c173d9a82d3503919de8377f1b8c9ff721882486f0b5ae2bdb9b22ee7f5ba8f6ef25e00fbb35704fac9fc3bda71908512ed4cbd345d9dc29d6ede149b2"
     ]
   ]
 ]

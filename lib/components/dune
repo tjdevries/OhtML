@@ -1,0 +1,5 @@
+(library
+ (name components)
+ (libraries base tyxml ohtml hx)
+ (flags (:standard -w -11 -open Base)))
+

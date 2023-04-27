@@ -34,7 +34,9 @@ duniverse/
 *.scip
 
 db.sqlite
+database/
 
 node_modules/
 _esy/
 esy.lock/
+

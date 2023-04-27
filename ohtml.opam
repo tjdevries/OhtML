@@ -11,6 +11,7 @@ depends: [
   "ocaml" {>= "5.0"}
   "dune" {>= "3.7"}
   "dream"
+  "dream-livereload"
   "tyxml"
   "bos"
   "lwt"

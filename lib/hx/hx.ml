@@ -71,10 +71,10 @@ module SwapType = struct
     in
     let modifiers =
       match t.modifiers with
-      | Some { transition = true } -> " transition"
+      | Some { transition = true } -> " transition:true"
       | _ -> ""
     in
-    Tyxml.Html.Unsafe.string_attrib "hx-swap" (modifiers ^ attr)
+    Tyxml.Html.Unsafe.string_attrib "hx-swap" (attr ^ modifiers)
   ;;
 end
 
@@ -85,4 +85,8 @@ let swap ?transition attr =
     { attr
     ; modifiers = Option.map transition ~f:(fun transition -> { transition })
     }
+;;
+
+let boost state =
+  Tyxml.Html.Unsafe.string_attrib "hx-boost" (Bool.to_string state)
 ;;

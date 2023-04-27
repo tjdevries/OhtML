@@ -15,7 +15,7 @@
  (description "No, seriously. The goal really is to have fun")
  (depends (ocaml (>= "5.0"))
           dune
-          dream
+          dream dream-livereload
           tyxml
           bos
           lwt caqti caqti-lwt caqti-dynload caqti-driver-sqlite3
