@@ -54,10 +54,14 @@ let migrate (module Db : DB) =
 
 let populate (module Db : DB) =
   let queries =
-    [ {| INSERT INTO exhibits (content) VALUES
-          ('This is an example exhibit'),
-          ('A middle exhibit'),
-          ('This is another one') |}
+    [ {| INSERT INTO users (name, password) VALUES
+          ('teej_dv', '12345'),
+          ('opti', 'hunter2'),
+          ('nightshadedude', 'ilovepiq') |}
+    ; {| INSERT INTO exhibits (user_id, content) VALUES
+          (1, 'This is an example exhibit'),
+          (1, 'A middle exhibit'),
+          (2, 'This is another one') |}
     ; {| INSERT INTO comments (content, exhibit_id) VALUES
           ('Wow, first try?', 1),
           ('Opti is a great teacher', 1) |}

@@ -48,7 +48,7 @@ module UserImpl = struct
     [%rapper
       get_opt
         {| SELECT @int{id}, @string{name}
-             FROM resources
+             FROM users
              WHERE id = %int{id} |}
         record_out]
   ;;
@@ -71,3 +71,39 @@ module UserImpl = struct
 end
 
 module User = Resource (UserImpl)
+
+module ImageImpl = struct
+  type t =
+    { id : int
+    ; data : string
+    }
+
+  type data = { data : string }
+
+  let read_query =
+    [%rapper
+      get_opt
+        {| SELECT @int{id}, @string{data}
+             FROM images
+             WHERE id = %int{id} |}
+        record_out]
+  ;;
+
+  let create_query =
+    [%rapper
+      get_one
+        {|
+          INSERT INTO images (data)
+          VALUES (%string{data})
+          RETURNING @int{id}
+        |}
+        record_in]
+  ;;
+
+  let format { id; data } =
+    let open Tyxml_html in
+    div [ h1 [ txt data ]; p [ txt (Printf.sprintf "ID: %d" id) ] ]
+  ;;
+end
+
+module Image = Resource (ImageImpl)

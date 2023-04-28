@@ -1,5 +1,6 @@
 (library
  (name components)
  (libraries base tyxml ohtml hx)
- (flags (:standard -w -11 -open Base)))
+ (flags (:standard -w -11 -open Base))
+ (preprocess (pps lwt_ppx)))
 

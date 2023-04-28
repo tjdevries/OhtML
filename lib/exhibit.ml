@@ -3,6 +3,8 @@ module T = Caqti_type
 
 type exhibit =
   { id : int
+  ; user_id : int
+  ; image_id : int option
   ; content : string
   }
 
@@ -10,36 +12,17 @@ type exhibit =
    val or_error : ('a, [> Caqti_error.t ]) result Lwt.t -> ('a, error) result Lwt.t *)
 let or_error = Database.or_error
 
-let migrate =
-  let query =
-    let open Caqti_request.Infix in
-    (T.unit ->. T.unit)
-      {|
-      CREATE TABLE exhibits (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          content VARCHAR
-        )
-      |}
-  in
-  fun (module Db : Database.DB) -> Db.exec query () |> or_error
-;;
-
-let rollback =
-  let query =
-    let open Caqti_request.Infix in
-    (T.unit ->. T.unit) "DROP TABLE exhibits"
-  in
-  fun (module Db : Database.DB) -> Db.exec query () |> or_error
-;;
-
 (* Stub these out for now. *)
 let add =
   let query =
     [%rapper
       get_one
-        {| INSERT INTO exhibits (content) VALUES (%string{content}) RETURNING @int{id} |}]
+        {| INSERT INTO exhibits (user_id, image_id, content)
+           VALUES (%int{user_id}, %int?{image_id}, %string{content})
+           RETURNING @int{id} |}]
   in
-  fun content db -> query ~content db |> or_error
+  fun ~content ~user_id ~image_id db ->
+    query ~content ~user_id ~image_id db |> or_error
 ;;
 
 let remove =
@@ -53,7 +36,8 @@ let get =
   let query =
     [%rapper
       get_opt
-        {| SELECT @int{id}, @string{content} FROM exhibits WHERE id = %int{id} |}
+        {| SELECT @int{id}, @int{user_id}, @int?{image_id}, @string{content}
+           FROM exhibits WHERE id = %int{id} |}
         record_out]
   in
   fun id db -> query ~id db |> or_error
@@ -62,7 +46,10 @@ let get =
 let get_all =
   let query =
     [%rapper
-      get_many {| SELECT @int{id}, @string{content} FROM exhibits |} record_out]
+      get_many
+        {| SELECT @int{id}, @int{user_id}, @int?{image_id}, @string{content}
+           FROM exhibits |}
+        record_out]
   in
   fun db -> query () db |> or_error
 ;;
@@ -79,13 +66,13 @@ let route_for ex = route_for_id ex.id
 
 let get_comments =
   let query =
-    let open Caqti_request.Infix in
-    (T.int ->* T.(string))
-      {| SELECT comments.content from comments
+    [%rapper
+      get_many
+        {| SELECT @string{comments.content} from comments
             INNER JOIN exhibits on exhibits.id = comments.exhibit_id
-            WHERE exhibits.id = $1 |}
+            WHERE exhibits.id = %int{id} |}]
   in
-  fun id (module Db : Database.DB) ->
-    let%lwt x = Db.collect_list query id |> or_error in
+  fun id db ->
+    let%lwt x = query ~id db |> or_error in
     x |> Lwt.return
 ;;

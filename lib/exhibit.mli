@@ -1,14 +1,22 @@
 type exhibit =
   { id : int
+  ; user_id : int
+  ; image_id : int option
   ; content : string
   }
 
 (* Migrations-related helper functions. *)
-val migrate : Database.t -> (unit, Database.error) result Lwt.t
-val rollback : Database.t -> (unit, Database.error) result Lwt.t
+(* val migrate : Database.t -> (unit, Database.error) result Lwt.t *)
+(* val rollback : Database.t -> (unit, Database.error) result Lwt.t *)
 
 (* Core functions *)
-val add : string -> Database.t -> (int, Database.error) result Lwt.t
+val add
+  :  content:string
+  -> user_id:int
+  -> image_id:int option
+  -> Database.t
+  -> (int, Database.error) result Lwt.t
+
 val get : int -> Database.t -> (exhibit option, Database.error) result Lwt.t
 val get_all : Database.t -> (exhibit list, Database.error) result Lwt.t
 val remove : int -> Database.t -> (unit, Database.error) result Lwt.t

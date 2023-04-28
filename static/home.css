@@ -3,6 +3,29 @@
   color: orange;
 }
 
+#name {
+  background-color: blue;
+}
+
+#password {
+  background-color: yellow;
+}
+
+#twitchchat {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+label {
+  width: 200px;
+}
+
+input {
+  padding: 0 5px;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

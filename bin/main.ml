@@ -1,5 +1,16 @@
 let elt_to_string elt = Format.asprintf "%a" (Tyxml.Html.pp_elt ()) elt
 
+let unwrap x =
+  match x with
+  | Ok x -> x
+  | _ -> failwith "unwrap failed!"
+;;
+
+let make_image link_ =
+  let open Tyxml.Html in
+  img ~src:link_ ~alt:"" ()
+;;
+
 let make_swapper route content t =
   let open Tyxml.Html in
   div
@@ -36,6 +47,38 @@ let index _ who =
        ; h2 [ txt "not affiliated with rust foundation, btw" ]
        ; button ~a:[ Hx.post "/increment" ] [ txt "Increment" ]
        ; make_swapper "/transition" "swapped content" "swap it!"
+       ; a ~a:[ a_href "/exhibits" ] [ txt "exhibits" ]
+       ; img ~src:"" ~alt:"" ()
+       ; div
+         @@ Components.ImageUpload.make_form
+              ~id:"image"
+              ~route:"/upload"
+              ~target:(Previous "img")
+       ])
+;;
+
+let login _ =
+  let open Tyxml.Html in
+  let make_input ~name ~text ~input_type =
+    div
+      [ label ~a:[ a_label_for name ] [ txt text ]
+      ; input ~a:[ a_id name; a_name name; a_input_type input_type ] ()
+      ]
+  in
+  html
+    (default_header "Login")
+    (body
+       [ h1 [ txt "Login here" ]
+       ; form
+           [ div
+               ~a:[ a_id "twitchchat" ]
+               [ make_input ~name:"name" ~text:"Username:" ~input_type:`Text
+               ; make_input
+                   ~name:"password"
+                   ~text:"Password:"
+                   ~input_type:`Password
+               ]
+           ]
        ])
 ;;
 
@@ -59,22 +102,6 @@ let format_exhibits request =
 
 let counter = ref 0
 
-let format_exhibit (exhibit : Ohtml.Exhibit.exhibit) (cont : string list) =
-  let open Tyxml.Html in
-  let comments = List.map (fun c -> tr [ td [ txt c ] ]) cont in
-  let e_header = default_header "OhtML" in
-  let e_body =
-    body
-      [ div
-          ~a:[ a_id ("exhibit-" ^ string_of_int exhibit.id) ]
-          [ txt exhibit.content
-          ; table ~thead:(thead [ tr [ th [ txt "comments" ] ] ]) comments
-          ]
-      ]
-  in
-  html e_header e_body |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())
-;;
-
 let () =
   Dream.run
   @@ Dream.logger
@@ -96,6 +123,8 @@ let () =
            @@ html_to_string
            @@ index request (Fmt.str "Twitch Chat: %s" username))
        ; Dream.get "/static/**" (Dream.static "./static")
+       ; Dream.get "/login" (fun request ->
+           Dream.html @@ html_to_string (login request))
        ; Dream.post "/increment" (fun _ ->
            incr counter;
            Dream.html ("yo, posted:" ^ string_of_int !counter))
@@ -105,7 +134,11 @@ let () =
        ; Dream.post "/exhibit/" (fun request ->
            match%lwt Dream.form ~csrf:false request with
            | `Ok [ ("content", content) ] ->
-             let%lwt id = Dream.sql request (Ohtml.Exhibit.add content) in
+             let%lwt id =
+               Dream.sql
+                 request
+                 (Ohtml.Exhibit.add ~content ~user_id:1 ~image_id:None)
+             in
              let id = Result.get_ok id in
              Dream.redirect request (Ohtml.Exhibit.route_for_id ~mode:`List id)
            | _ -> Dream.empty `Bad_Request)
@@ -121,23 +154,8 @@ let () =
                 @@ Components.ExhibitList.table_row (Option.get exhibit))
              |> Lwt.return
            | _ -> Dream.empty `Not_Found)
-       ; Dream.get "/exhibit/:id" (fun request ->
-           let id = Dream.param request "id" in
-           let%lwt exhibit =
-             Dream.sql request (Ohtml.Exhibit.get (int_of_string id))
-           in
-           match exhibit with
-           | Ok exhibit ->
-             let exhibit = Option.get exhibit in
-             let%lwt comments =
-               Dream.sql request (Ohtml.Exhibit.get_comments exhibit.id)
-             in
-             (match comments with
-              | Ok comments -> Dream.html @@ format_exhibit exhibit comments
-              | Error (Database_error s) ->
-                Format.printf "failed... :'( %s@." s;
-                Dream.empty `Not_Found)
-           | _ -> Dream.empty `Not_Found)
+       ; Dream.get "/exhibit/:id"
+         @@ Components.ExhibitDetailed.handle (default_header "exhibits")
        ; Dream.delete "/exhibit/:id" (fun request ->
            let id = Dream.param request "id" in
            let%lwt exhibit =
@@ -155,6 +173,42 @@ let () =
            Dream.html
              (make_swapper "/replace" "replace this" "replace it!"
               |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())))
+       ; Dream.post "/upload" (fun request ->
+           Fmt.pr "uploading\n%!";
+           let rec receive files =
+             match%lwt Dream.upload request with
+             | None -> files |> Lwt.return
+             | Some (name, filename, _) ->
+               Fmt.pr
+                 "name(%s) filename(%s)\n"
+                 (Option.value ~default:"<default>" name)
+                 (Option.value ~default:"<default>" filename);
+               let rec concat_part contents =
+                 match%lwt Dream.upload_part request with
+                 | None -> receive (contents :: files)
+                 | Some chunk -> concat_part (contents ^ chunk)
+               in
+               concat_part ""
+           in
+           let%lwt uploaded = receive [] in
+           Fmt.pr "uploaded len: %d\n" (List.length uploaded);
+           Fmt.pr "first len: %d\n" (String.length (List.hd uploaded));
+           let%lwt image =
+             Dream.sql
+               request
+               Ohtml.Resource.Image.(create { data = List.hd uploaded })
+           in
+           let image = image |> unwrap in
+           Dream.html
+             (elt_to_string (make_image ("/images/" ^ Int.to_string image.id))))
+       ; Dream.get "/images/:id" (fun request ->
+           let id = Dream.param request "id" in
+           let id = int_of_string id in
+           let%lwt image = Dream.sql request (Ohtml.Resource.Image.read id) in
+           let image = image |> unwrap in
+           let image = Option.get image in
+           Dream.response ~headers:[ "Content-Type", "image/jpeg" ] image.data
+           |> Lwt.return)
        ; Dream_livereload.route ()
          (* ; Dream.get "/exhibit/" (fun _ -> Dream.html "POSTED YO") *)
        ]
