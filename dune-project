@@ -1,4 +1,5 @@
 (lang dune 3.7)
+(cram enable)
 
 (name ohtml)
 
@@ -20,3 +21,7 @@
           bos
           lwt caqti caqti-lwt caqti-dynload caqti-driver-sqlite3
           ppx_rapper ppx_rapper_lwt))
+
+(package
+ (name ppx_model)
+ (depends ocaml ppxlib))

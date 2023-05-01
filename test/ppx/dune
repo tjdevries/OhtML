@@ -1,0 +1,14 @@
+(executable
+ (name pp)
+ (modules pp)
+ (libraries ppx_rapper ppx_model ppxlib))
+
+(rule
+ (targets test.actual.ml)
+ (deps (:pp pp.exe) (:input test.ml))
+ (action (run ./%{pp} --impl %{input} -o %{targets})))
+
+(rule
+ (alias runtest)
+ (deps (file test.expected.ml) (file test.actual.ml))
+ (action (diff test.expected.ml test.actual.ml)))

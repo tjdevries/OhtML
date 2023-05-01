@@ -1,6 +1,7 @@
 (executable
  (public_name ohtml)
  (name main)
+ (package ohtml)
  (modules main)
  (libraries ohtml hx components dream dream-livereload tyxml
             caqti caqti-lwt caqti-dynload caqti-driver-sqlite3)
@@ -9,6 +10,7 @@
 (executable
  (public_name migrate)
  (name migrate)
+ (package ohtml)
  (modules migrate)
  (libraries
    ohtml

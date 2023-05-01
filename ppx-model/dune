@@ -1,0 +1,16 @@
+(executable
+ (name pp)
+ (modules pp)
+ (libraries ppxlib)
+ (preprocess (pps ppxlib.metaquot ppx_model)))
+
+(library
+ (name ppx_model)
+ (kind ppx_deriver)
+ (modules model)
+ (package ppx_model)
+ (flags (:standard -w -27))
+ (libraries ppxlib base)
+ (preprocess
+  (pps ppxlib.metaquot)))
+
