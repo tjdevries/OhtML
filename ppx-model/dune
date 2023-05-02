@@ -10,7 +10,7 @@
  (modules model)
  (package ppx_model)
  (flags (:standard -w -27))
- (libraries ppxlib base)
+ (libraries ppxlib base fmt)
  (preprocess
   (pps ppxlib.metaquot)))
 

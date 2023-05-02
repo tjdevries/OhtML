@@ -19,6 +19,7 @@
           dream dream-livereload
           tyxml
           bos
+          base fmt
           lwt caqti caqti-lwt caqti-dynload caqti-driver-sqlite3
           ppx_rapper ppx_rapper_lwt))
 

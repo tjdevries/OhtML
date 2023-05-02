@@ -257,11 +257,11 @@ pin-depends: [
   ]
   [
     "dream.1.0.0~alpha5"
-    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
+    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
   ]
   [
     "dream-httpaf.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
+    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
   ]
   [
     "dream-livereload.0.2.0"
@@ -269,7 +269,7 @@ pin-depends: [
   ]
   [
     "dream-pure.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
+    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
   ]
   [
     "dune-configurator.3.7.1"
@@ -526,7 +526,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "git+https://github.com/aantron/dream.git#313fe46c3f4e1e600b63c82f5d1b7fa64fb4fba2"
+    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
     "dream"
   ]
   [
@@ -1011,5 +1011,5 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
 ]
-x-opam-monorepo-root-packages: ["ohtml"]
+x-opam-monorepo-root-packages: ["ohtml" "ppx_model"]
 x-opam-monorepo-version: "0.3"
