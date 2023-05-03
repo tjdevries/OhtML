@@ -1,3 +1,5 @@
+module Exhibit = Models.Exhibit
+
 let elt_to_string elt = Format.asprintf "%a" (Tyxml.Html.pp_elt ()) elt
 
 let unwrap x =
@@ -17,11 +19,7 @@ let make_swapper route content t =
     ~a:[ a_class [ "sample-transition" ] ]
     [ h1 [ txt "hey begin: "; txt content ]
     ; button
-        ~a:
-          [ Hx.get route
-          ; Hx.swap ~transition:true OuterHTML
-          ; Hx.target (Closest "div")
-          ]
+        ~a:[ Hx.get route; Hx.swap ~transition:true OuterHTML; Hx.target (Closest "div") ]
         [ txt t ]
     ]
 ;;
@@ -73,10 +71,7 @@ let login _ =
            [ div
                ~a:[ a_id "twitchchat" ]
                [ make_input ~name:"name" ~text:"Username:" ~input_type:`Text
-               ; make_input
-                   ~name:"password"
-                   ~text:"Password:"
-                   ~input_type:`Password
+               ; make_input ~name:"password" ~text:"Password:" ~input_type:`Password
                ]
            ]
        ])
@@ -85,7 +80,7 @@ let login _ =
 let html_to_string html = Format.asprintf "%a" (Tyxml.Html.pp ()) html
 
 let format_exhibits request =
-  match%lwt Dream.sql request Ohtml.Exhibit.get_all with
+  match%lwt Dream.sql request (Exhibit.read_all ()) with
   | Ok exhibits ->
     let open Tyxml.Html in
     let header = Components.ExhibitList.table_head in
@@ -94,9 +89,7 @@ let format_exhibits request =
       div [ table ~thead:header exhibits ]
       :: [ Components.ExhibitPost.form ~target:(Previous "tbody") ]
     in
-    html (default_header "Exhibits") (body exhibits)
-    |> html_to_string
-    |> Dream.html
+    html (default_header "Exhibits") (body exhibits) |> html_to_string |> Dream.html
   | _ -> failwith "Something"
 ;;
 
@@ -123,8 +116,7 @@ let () =
            @@ html_to_string
            @@ index request (Fmt.str "Twitch Chat: %s" username))
        ; Dream.get "/static/**" (Dream.static "./static")
-       ; Dream.get "/login" (fun request ->
-           Dream.html @@ html_to_string (login request))
+       ; Dream.get "/login" (fun request -> Dream.html @@ html_to_string (login request))
        ; Dream.post "/increment" (fun _ ->
            incr counter;
            Dream.html ("yo, posted:" ^ string_of_int !counter))
@@ -134,37 +126,30 @@ let () =
        ; Dream.post "/exhibit/" (fun request ->
            match%lwt Dream.form ~csrf:false request with
            | `Ok [ ("content", content) ] ->
-             let%lwt id =
-               Dream.sql
-                 request
-                 (Ohtml.Exhibit.add ~content ~user_id:1 ~image_id:None)
+             let%lwt exhibit =
+               Dream.sql request (Exhibit.create ~user_id:1 ~content ~image_id:None)
              in
-             let id = Result.get_ok id in
-             Dream.redirect request (Ohtml.Exhibit.route_for_id ~mode:`List id)
+             let exhibit = Result.get_ok exhibit in
+             Dream.redirect request (Exhibit.route_for_id ~mode:`List exhibit.id)
            | _ -> Dream.empty `Bad_Request)
        ; Dream.get "/exhibit/list/:id" (fun request ->
            let id = Dream.param request "id" in
-           let%lwt exhibit =
-             Dream.sql request (Ohtml.Exhibit.get (int_of_string id))
-           in
+           let%lwt exhibit = Dream.sql request (Exhibit.read ~id:(int_of_string id)) in
            match exhibit with
            | Ok exhibit ->
              Dream.response
-               (elt_to_string
-                @@ Components.ExhibitList.table_row (Option.get exhibit))
+               (elt_to_string @@ Components.ExhibitList.table_row (Option.get exhibit))
              |> Lwt.return
            | _ -> Dream.empty `Not_Found)
        ; Dream.get "/exhibit/:id"
          @@ Components.ExhibitDetailed.handle (default_header "exhibits")
        ; Dream.delete "/exhibit/:id" (fun request ->
            let id = Dream.param request "id" in
-           let%lwt exhibit =
-             Dream.sql request (Ohtml.Exhibit.remove (int_of_string id))
-           in
+           let%lwt exhibit = Dream.sql request (Exhibit.delete ~id:(int_of_string id)) in
            match exhibit with
            | Ok _ -> Dream.html "deleted"
            | _ -> Dream.empty `Not_Found)
-       ; Dream.get "/user/:id" Ohtml.Resource.User.route_get
+       ; Dream.get "/user/:id" Models.User.handle_get
        ; Dream.get "/replace" (fun _ ->
            Dream.html
              (make_swapper "/transition" "swapped content" "swap it!"
@@ -194,17 +179,14 @@ let () =
            Fmt.pr "uploaded len: %d\n" (List.length uploaded);
            Fmt.pr "first len: %d\n" (String.length (List.hd uploaded));
            let%lwt image =
-             Dream.sql
-               request
-               Ohtml.Resource.Image.(create { data = List.hd uploaded })
+             Dream.sql request Models.Image.(create ~data:(List.hd uploaded))
            in
            let image = image |> unwrap in
-           Dream.html
-             (elt_to_string (make_image ("/images/" ^ Int.to_string image.id))))
+           Dream.html (elt_to_string (make_image ("/images/" ^ Int.to_string image.id))))
        ; Dream.get "/images/:id" (fun request ->
            let id = Dream.param request "id" in
            let id = int_of_string id in
-           let%lwt image = Dream.sql request (Ohtml.Resource.Image.read id) in
+           let%lwt image = Dream.sql request (Models.Image.read ~id) in
            let image = image |> unwrap in
            let image = Option.get image in
            Dream.response ~headers:[ "Content-Type", "image/jpeg" ] image.data

@@ -1,15 +1,13 @@
+module User = Models.User
+module Exhibit = Models.Exhibit
+
 let unwrap x =
   match x with
   | Ok x -> x
   | _ -> failwith "nope"
 ;;
 
-let format_exhibit
-  header
-  (user : Ohtml.Resource.User.t)
-  (exhibit : Ohtml.Exhibit.exhibit)
-  (cont : string list)
-  =
+let format_exhibit header (user : User.t) (exhibit : Exhibit.t) (cont : string list) =
   let e_header = header in
   let open Tyxml.Html in
   let comments = List.map ~f:(fun c -> tr [ td [ txt c ] ]) cont in
@@ -36,13 +34,11 @@ let format_exhibit
 
 let handle header (request : Dream.request) =
   let id = Dream.param request "id" in
-  let%lwt exhibit = Dream.sql request (Ohtml.Exhibit.get (Int.of_string id)) in
+  let%lwt exhibit = Dream.sql request (Exhibit.read ~id:(Int.of_string id)) in
   match exhibit with
   | Ok exhibit ->
     let exhibit = Option.value_exn exhibit in
-    let%lwt user =
-      Dream.sql request (Ohtml.Resource.User.read exhibit.user_id)
-    in
+    let%lwt user = Dream.sql request (User.read ~id:exhibit.user_id) in
     let user =
       match user with
       | Ok user -> user
@@ -51,13 +47,9 @@ let handle header (request : Dream.request) =
         failwith "OH NO"
     in
     let user = user |> Option.value_exn in
-    let%lwt comments =
-      Dream.sql request (Ohtml.Exhibit.get_comments exhibit.id)
-    in
+    let%lwt comments = Dream.sql request (Exhibit.get_comments ~id:exhibit.id) in
     (match comments with
      | Ok comments -> Dream.html @@ format_exhibit header user exhibit comments
-     | Error (Database_error s) ->
-       Fmt.pr "failed... :'( %s@." s;
-       Dream.empty `Not_Found)
+     | Error _ -> Dream.empty `Not_Found)
   | _ -> Dream.empty `Not_Found
 ;;

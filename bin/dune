@@ -3,7 +3,7 @@
  (name main)
  (package ohtml)
  (modules main)
- (libraries ohtml hx components dream dream-livereload tyxml
+ (libraries ohtml hx components dream dream-livereload tyxml models
             caqti caqti-lwt caqti-dynload caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx)))
 

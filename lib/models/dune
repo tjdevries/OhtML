@@ -1,5 +1,5 @@
 (library
  (name models)
- (modules ex)
- (libraries lwt caqti-lwt ppx_rapper_lwt)
+ (modules user image exhibit)
+ (libraries dream tyxml lwt caqti-lwt ppx_rapper_lwt)
  (preprocess (pps ppx_model ppx_rapper lwt_ppx)))

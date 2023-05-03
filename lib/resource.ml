@@ -5,12 +5,7 @@ module type RESOURCE = sig
   type data
 
   val create_query : data -> Database.t -> (int, Caqti_error.t) Lwt_result.t
-
-  val read_query
-    :  id:int
-    -> Database.t
-    -> (t option, Caqti_error.t) Lwt_result.t
-
+  val read_query : id:int -> Database.t -> (t option, Caqti_error.t) Lwt_result.t
   val format : t -> [ `Div ] Tyxml_html.elt
 end
 
@@ -35,75 +30,3 @@ module Resource (T : RESOURCE) = struct
     | _ -> Dream.empty `Not_Found
   ;;
 end
-
-module UserImpl = struct
-  type t =
-    { id : int
-    ; name : string
-    }
-
-  type data = { name : string }
-
-  let read_query =
-    [%rapper
-      get_opt
-        {| SELECT @int{id}, @string{name}
-             FROM users
-             WHERE id = %int{id} |}
-        record_out]
-  ;;
-
-  let create_query =
-    [%rapper
-      get_one
-        {|
-          INSERT INTO users (name)
-          VALUES (%string{name})
-          RETURNING @int{id}
-        |}
-        record_in]
-  ;;
-
-  let format { id; name } =
-    let open Tyxml_html in
-    div [ h1 [ txt name ]; p [ txt (Printf.sprintf "ID: %d" id) ] ]
-  ;;
-end
-
-module User = Resource (UserImpl)
-
-module ImageImpl = struct
-  type t =
-    { id : int
-    ; data : string
-    }
-
-  type data = { data : string }
-
-  let read_query =
-    [%rapper
-      get_opt
-        {| SELECT @int{id}, @string{data}
-             FROM images
-             WHERE id = %int{id} |}
-        record_out]
-  ;;
-
-  let create_query =
-    [%rapper
-      get_one
-        {|
-          INSERT INTO images (data)
-          VALUES (%string{data})
-          RETURNING @int{id}
-        |}
-        record_in]
-  ;;
-
-  let format { id; data } =
-    let open Tyxml_html in
-    div [ h1 [ txt data ]; p [ txt (Printf.sprintf "ID: %d" id) ] ]
-  ;;
-end
-
-module Image = Resource (ImageImpl)
