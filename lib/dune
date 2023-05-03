@@ -1,11 +1,11 @@
 (library
- (modules sql database resource)
+ (modules sql_setup database resource)
  (libraries lwt caqti-lwt bos base ppx_rapper_lwt tyxml dream)
  (name ohtml)
  (preprocess (pps ppx_rapper lwt_ppx))
  (preprocessor_deps (glob_files *.sql)))
 
 (rule
- (targets sql.ml)
- (deps sql.eml.ml)
+ (targets sql_setup.ml)
+ (deps sql_setup.eml.ml)
  (action (run dream_eml %{deps} --workspace %{workspace_root})))
