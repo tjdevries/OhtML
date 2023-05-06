@@ -81,6 +81,8 @@ depends: [
   "pg_query" {= "0.9.8" & ?vendor}
   "ppx_derivers" {= "1.2.1" & ?vendor}
   "ppx_deriving" {= "5.2.1" & ?vendor}
+  "ppx_here" {= "v0.15.0" & ?vendor}
+  "ppx_let" {= "v0.15.0" & ?vendor}
   "ppx_rapper" {= "3.1.0" & ?vendor}
   "ppx_rapper_lwt" {= "3.1.0" & ?vendor}
   "ppxlib" {= "0.29.1" & ?vendor}
@@ -257,11 +259,11 @@ pin-depends: [
   ]
   [
     "dream.1.0.0~alpha5"
-    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
+    "git+https://github.com/aantron/dream.git#006196fa0c957ea4f4aa3e949803b09cc1b3010b"
   ]
   [
     "dream-httpaf.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
+    "git+https://github.com/aantron/dream.git#006196fa0c957ea4f4aa3e949803b09cc1b3010b"
   ]
   [
     "dream-livereload.0.2.0"
@@ -269,7 +271,7 @@ pin-depends: [
   ]
   [
     "dream-pure.1.0.0~alpha2"
-    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
+    "git+https://github.com/aantron/dream.git#006196fa0c957ea4f4aa3e949803b09cc1b3010b"
   ]
   [
     "dune-configurator.3.7.1"
@@ -428,6 +430,14 @@ pin-depends: [
     "https://github.com/ocaml-ppx/ppx_deriving/releases/download/v5.2.1/ppx_deriving-v5.2.1.tbz"
   ]
   [
+    "ppx_here.v0.15.0"
+    "https://ocaml.janestreet.com/ocaml-core/v0.15/files/ppx_here-v0.15.0.tar.gz"
+  ]
+  [
+    "ppx_let.v0.15.0"
+    "https://ocaml.janestreet.com/ocaml-core/v0.15/files/ppx_let-v0.15.0.tar.gz"
+  ]
+  [
     "ppx_rapper.3.1.0"
     "https://github.com/roddyyaga/ppx_rapper/archive/3.1.0.tar.gz"
   ]
@@ -526,7 +536,7 @@ x-opam-monorepo-duniverse-dirs: [
     ]
   ]
   [
-    "git+https://github.com/aantron/dream.git#0826c267b393459c1ab3fd9dfedc9f79cff9d9ca"
+    "git+https://github.com/aantron/dream.git#006196fa0c957ea4f4aa3e949803b09cc1b3010b"
     "dream"
   ]
   [
@@ -1008,6 +1018,20 @@ x-opam-monorepo-duniverse-dirs: [
     [
       "md5=7c4b51e1b666711af04f7832ebc90618"
       "sha512=aa8a34c173d9a82d3503919de8377f1b8c9ff721882486f0b5ae2bdb9b22ee7f5ba8f6ef25e00fbb35704fac9fc3bda71908512ed4cbd345d9dc29d6ede149b2"
+    ]
+  ]
+  [
+    "https://ocaml.janestreet.com/ocaml-core/v0.15/files/ppx_here-v0.15.0.tar.gz"
+    "ppx_here"
+    [
+      "sha256=c5bc027c938a4893267c12e5ded6d7391b89851cf69094154ad9d824c3e0cadf"
+    ]
+  ]
+  [
+    "https://ocaml.janestreet.com/ocaml-core/v0.15/files/ppx_let-v0.15.0.tar.gz"
+    "ppx_let"
+    [
+      "sha256=64742c11eab6d6915a5213b20648af16ea2f65771170887ad91f8f1da38f3655"
     ]
   ]
 ]

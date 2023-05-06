@@ -1,7 +1,7 @@
 (library
+ (name ohtml)
  (modules sql_setup database resource)
  (libraries lwt caqti-lwt bos base ppx_rapper_lwt tyxml dream)
- (name ohtml)
  (preprocess (pps ppx_rapper lwt_ppx))
  (preprocessor_deps (glob_files *.sql)))
 

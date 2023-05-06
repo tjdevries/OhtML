@@ -15,6 +15,7 @@ depends: [
   "tyxml"
   "bos"
   "base"
+  "ppx_let"
   "fmt"
   "lwt"
   "caqti"
