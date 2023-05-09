@@ -1,3 +1,5 @@
+open Base
+
 (** Typesafe htmlx wrappers for OCaml. Emits attributes to be used with TyXML *)
 
 (** hx-get wrapper. TODO: Should use different link type *)
@@ -27,12 +29,42 @@ module TargetType = struct
 end
 
 (** Typesafe hx-target wrapper *)
-let target t =
-  Tyxml.Html.Unsafe.string_attrib "hx-target" (TargetType.to_string t)
+let target t = Tyxml.Html.Unsafe.string_attrib "hx-target" (TargetType.to_string t)
+
+(** hx-select. Select the content to swap into the page *)
+let select sel = Tyxml.Html.Unsafe.string_attrib "hx-select" sel
+
+let select_oob sel =
+  Tyxml.Html.Unsafe.string_attrib "hx-select" (String.concat ~sep:"," sel)
 ;;
 
 module SwapType = struct
-  type modifiers = { transition : bool }
+  module Modifiers = struct
+    type data =
+      { transition : bool option
+      ; swap : string option
+      }
+
+    type t = data option
+
+    let create ~transition ~swap =
+      match transition, swap with
+      | None, None -> None
+      | _, _ -> Some { transition; swap }
+    ;;
+
+    let to_string = function
+      | None -> ""
+      | Some data ->
+        [ Some "" (* Empty string to start, to prefix with space *)
+        ; Option.map data.transition ~f:(Fmt.str "transition:%b")
+        ; Option.map data.swap ~f:(Fmt.str "swap:%s")
+        ]
+        |> List.filter_opt
+        |> String.concat ~sep:" "
+    ;;
+    (* Option.map *)
+  end
 
   type attr =
     | InnerHTML
@@ -54,7 +86,7 @@ module SwapType = struct
 
   type t =
     { attr : attr
-    ; modifiers : modifiers option
+    ; modifiers : Modifiers.t
     }
 
   let to_attr t =
@@ -69,24 +101,23 @@ module SwapType = struct
       | Delete -> "delete"
       | None -> "none"
     in
-    let modifiers =
-      match t.modifiers with
-      | Some { transition = true } -> " transition:true"
-      | _ -> ""
-    in
+    let modifiers = Modifiers.to_string t.modifiers in
     Tyxml.Html.Unsafe.string_attrib "hx-swap" (attr ^ modifiers)
   ;;
 end
 
 (** Typesafe hx-swap wrapper *)
-let swap ?transition attr =
+let swap ?transition ?swap attr =
   let open SwapType in
-  to_attr
-    { attr
-    ; modifiers = Option.map transition ~f:(fun transition -> { transition })
-    }
+  to_attr { attr; modifiers = Modifiers.create ~transition ~swap }
 ;;
 
-let boost state =
-  Tyxml.Html.Unsafe.string_attrib "hx-boost" (Bool.to_string state)
+(* Misc Attributes *)
+let boost status = Tyxml.Html.Unsafe.string_attrib "hx-boost" (Bool.to_string status)
+
+let push_url status =
+  Tyxml.Html.Unsafe.string_attrib "hx-push-url" (Bool.to_string status)
 ;;
+
+(* TODO: hx-on. Would be very cool to use melange and encode the function name into some script:
+          https://htmx.org/attributes/hx-on/ *)
