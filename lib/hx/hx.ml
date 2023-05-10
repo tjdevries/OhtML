@@ -2,6 +2,10 @@ open Base
 
 (** Typesafe htmlx wrappers for OCaml. Emits attributes to be used with TyXML *)
 
+(* TODO: Would be cool to break this down a bit more (class, id, etc.).
+         Down with strings! *)
+type css_selector = string
+
 (** hx-get wrapper. TODO: Should use different link type *)
 let get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link
 
@@ -14,10 +18,10 @@ let delete str = Tyxml.Html.Unsafe.string_attrib "hx-delete" str
 module TargetType = struct
   type t =
     | This
-    | Css of string
-    | Closest of string
-    | Find of string
-    | Previous of string
+    | Css of css_selector
+    | Closest of css_selector
+    | Find of css_selector
+    | Previous of css_selector
 
   let to_string = function
     | This -> "this"
@@ -40,17 +44,37 @@ let select_oob sel =
 
 module SwapType = struct
   module Modifiers = struct
+    type scrolldir =
+      | Top
+      | Bottom
+
+    type scrolling = scrolldir * string option
+
+    let scroll_to_string prefix scroll =
+      let map_dir = function
+        | Top -> "top"
+        | Bottom -> "bottom"
+      in
+      match scroll with
+      | dir, Some modifier -> Fmt.str "%s:%s:%s" prefix modifier (map_dir dir)
+      | dir, None -> Fmt.str "%s:%s" prefix (map_dir dir)
+    ;;
+
     type data =
       { transition : bool option
       ; swap : string option
+      ; settle : string option
+      ; scroll : scrolling option
+      ; show : scrolling option
+      ; focus_scroll : bool option
       }
 
     type t = data option
 
-    let create ~transition ~swap =
+    let create ~transition ~swap ~settle ~scroll ~show ~focus_scroll =
       match transition, swap with
       | None, None -> None
-      | _, _ -> Some { transition; swap }
+      | _, _ -> Some { transition; swap; settle; scroll; show; focus_scroll }
     ;;
 
     let to_string = function
@@ -59,6 +83,10 @@ module SwapType = struct
         [ Some "" (* Empty string to start, to prefix with space *)
         ; Option.map data.transition ~f:(Fmt.str "transition:%b")
         ; Option.map data.swap ~f:(Fmt.str "swap:%s")
+        ; Option.map data.settle ~f:(Fmt.str "settle:%s")
+        ; Option.map data.scroll ~f:(scroll_to_string "scroll")
+        ; Option.map data.show ~f:(scroll_to_string "show")
+        ; Option.map data.focus_scroll ~f:(Fmt.str "focus-scroll:%b")
         ]
         |> List.filter_opt
         |> String.concat ~sep:" "
@@ -107,10 +135,15 @@ module SwapType = struct
 end
 
 (** Typesafe hx-swap wrapper *)
-let swap ?transition ?swap attr =
+let swap ?transition ?swap ?settle ?scroll ?show ?focus_scroll attr =
   let open SwapType in
-  to_attr { attr; modifiers = Modifiers.create ~transition ~swap }
+  to_attr
+    { attr
+    ; modifiers = Modifiers.create ~transition ~swap ~settle ~scroll ~show ~focus_scroll
+    }
 ;;
+
+(* TODO: hx-swap-oob? I don't think I understand. Need to look at some more examples. *)
 
 (* Misc Attributes *)
 let boost status = Tyxml.Html.Unsafe.string_attrib "hx-boost" (Bool.to_string status)
