@@ -30,6 +30,11 @@ let table_row (user : Models.User.t option) (ex : t) =
 let page user page_header exhibits =
   let open Tyxml.Html in
   let exhibits = List.map exhibits ~f:(table_row user) in
+  let login =
+    match user with
+    | None -> [ div [ a ~a:[ a_href "/login?redirect=exhibits" ] [ txt "login" ] ] ]
+    | _ -> []
+  in
   let exhibits =
     div [ table ~thead:table_head exhibits ]
     ::
@@ -37,5 +42,7 @@ let page user page_header exhibits =
      | Some _ -> [ ExhibitPost.form ~target:(Previous "tbody") ]
      | None -> [])
   in
-  html page_header (body exhibits) |> Fmt.str "%a" (Tyxml.Html.pp ()) |> Dream.html
+  html page_header (body (login @ exhibits))
+  |> Fmt.str "%a" (Tyxml.Html.pp ())
+  |> Dream.html
 ;;

@@ -32,6 +32,16 @@ let format { id; name } =
   |> Format.asprintf "%a" (Tyxml.Html.pp_elt ())
 ;;
 
+let login_user request name password =
+  let query =
+    [%rapper
+      get_one
+        {| SELECT @int{id}, @string{name} FROM users where name = %string{name} and password = %string{password} |}
+        record_out]
+  in
+  Dream.sql request (query ~name ~password)
+;;
+
 let handle_get request =
   let id = Dream.param request "id" in
   let%lwt resource = Dream.sql request (read ~id:(int_of_string id)) in

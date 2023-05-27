@@ -31,7 +31,7 @@ open Base
 
 (* TODO: Would be cool to break this down a bit more (class, id, etc.).
          Down with strings! *)
-type css_selector = private string
+type css_selector = string
 
 (** hx-get wrapper. TODO: Should use different link type *)
 let get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link

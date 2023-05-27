@@ -55,7 +55,8 @@ let index _ who =
        ])
 ;;
 
-let login _ =
+let login request =
+  let redirect = Dream.query request "redirect" in
   let open Tyxml.Html in
   let make_input ~name ~text ~input_type =
     div
@@ -68,11 +69,26 @@ let login _ =
     (body
        [ h1 [ txt "Login here" ]
        ; form
-           ~a:[ a_action "/login"; a_method `Post ]
-           [ div
+           ~a:
+             [ (a_action
+                @@ "/login"
+                ^
+                match redirect with
+                | Some redirect -> "?redirect=/" ^ redirect
+                | None -> "")
+             ; a_method `Post (* ; a_content "application/x-www-form-urlencoded" *)
+             ]
+           (* [ input *)
+           (*     ~a: *)
+           (*       [ a_name "dream.csrf" *)
+           (*       ; a_input_type `Hidden *)
+           (*       ; a_value (Dream.csrf_token request) *)
+           (*       ] *)
+           (*     () *)
+           [ Dream.csrf_tag request |> Unsafe.data
+           ; div
                ~a:[ a_id "twitchchat" ]
-               [ make_input ~name:"user_id" ~text:"user_id:" ~input_type:`Text
-               ; make_input ~name:"name" ~text:"Username:" ~input_type:`Text
+               [ make_input ~name:"name" ~text:"Username:" ~input_type:`Text
                ; make_input ~name:"password" ~text:"Password:" ~input_type:`Password
                ; button ~a:[ a_button_type `Submit ] [ txt "Submit" ]
                ]
@@ -101,27 +117,26 @@ let counter = ref 0
 
 let get_user request =
   let user_id = Dream.session_field request "user" in
-  Fmt.pr "get user: %s@." (Option.value ~default:"None" user_id);
   match user_id with
   | None ->
     let%lwt () = Dream.invalidate_session request in
+    let%lwt () = Dream.set_session_field request "user" "1" in
     None |> Lwt.return
   | Some user_id -> Some (Int.of_string user_id) |> Lwt.return
 ;;
 
-let set_user request user_id =
+let set_user ?(redirect = "/") request user_id =
   let%lwt () = Dream.invalidate_session request in
   let%lwt () = Dream.set_session_field request "user" (Int.to_string user_id) in
-  Fmt.pr "set user: %d@." user_id |> Lwt.return
+  Dream.redirect request redirect
 ;;
 
 let () =
   Dream.run
   @@ Dream.logger
   @@ Dream_livereload.inject_script ()
-  @@ Dream.memory_sessions
   @@ Dream.sql_pool "sqlite3:/home/tjdevries/tmp/ohtml.sqlite"
-  @@ Dream.sql_sessions
+  @@ Dream.memory_sessions
   @@ Dream.router
        [ Dream.get "/" (fun request ->
            Dream.html
@@ -134,16 +149,27 @@ let () =
              List.find_map t ~f:(fun (header, data) ->
                if String.(header = key) then Some data else None)
            in
-           let%lwt form_result = Dream.form ~csrf:false request in
+           let redirect =
+             Dream.query request "redirect" |> Base.Option.value ~default:"/"
+           in
+           let%lwt form_result = Dream.form request in
            match form_result with
            | `Ok form_data ->
-             let user_id = find_data form_data "user_id" in
-             (match user_id with
-              | Some user_id ->
-                let%lwt () = set_user request (Int.of_string user_id) in
-                Dream.redirect request "/"
-              | None -> failwith "dawg")
-           | _ -> failwith "Login Something")
+             let username = find_data form_data "name" in
+             let password = find_data form_data "password" in
+             (match username, password with
+              | Some username, Some password ->
+                let%lwt user = Models.User.login_user request username password in
+                (match user with
+                 | Ok user -> set_user ~redirect request user.id
+                 | _ -> failwith "bad user or somethin")
+              | _ -> failwith "dawg")
+           | `Expired _ -> failwith "EXPIRED"
+           | `Wrong_session _ -> failwith "wrong sessions"
+           | `Invalid_token _ -> failwith "invalid token"
+           | `Missing_token _ -> failwith "mising token"
+           | `Many_tokens _ -> failwith "many tokens"
+           | `Wrong_content_type -> failwith "wrong content Something")
        ; Dream.post "/increment" (fun _ ->
            Int.incr counter;
            Dream.html ("yo, posted:" ^ Int.to_string !counter))

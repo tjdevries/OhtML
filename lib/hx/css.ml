@@ -35,8 +35,9 @@ module Element = struct
   type t = string
 
   let element elt =
-    let name = get_name elt in
-    { attribute = name; value = None }
+    let _ = get_name elt in
+    (* { attribute = name; value = None } *)
+    assert false
   ;;
 end
 
