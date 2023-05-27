@@ -1,10 +1,37 @@
+(*  TODO: hx-trigger response
+          You can send a response header with basically an event name
+          and then respond to that from within the rest of the body.
+          So, you could auto refresh / re-update some table with a new HTTP
+          request, but decoupled from the rest of the project. 
+
+          Smart thing to do would be to make some type/module that has events
+          and use that from within your own stuff to make sure you're only emiting
+          events that can be handled. Something to think about.
+
+          https://hypermedia.systems/book/deep-htmx/ -> Server Generated Events *)
+
+(* 
+   HX-Location
+    Causes a client-side redirection to a new location
+
+  HX-Push-Url
+    Pushes a new URL into the location bar
+
+  HX-Refresh
+    Refreshes the current page
+
+  HX-Retarget
+    Allows you to specify a new target to swap the response content into on the client side *)
+
+(* <meta name="htmx-config" content='{"defaultSwapStyle":"outerHTML"}'> *)
+
 open Base
 
 (** Typesafe htmlx wrappers for OCaml. Emits attributes to be used with TyXML *)
 
 (* TODO: Would be cool to break this down a bit more (class, id, etc.).
          Down with strings! *)
-type css_selector = string
+type css_selector = private string
 
 (** hx-get wrapper. TODO: Should use different link type *)
 let get link = Tyxml.Html.Unsafe.string_attrib "hx-get" link
@@ -143,6 +170,32 @@ let swap ?transition ?swap ?settle ?scroll ?show ?focus_scroll attr =
     }
 ;;
 
+module TriggerType = struct
+  type trigger =
+    | Event of string
+    | Every of string
+
+  type modifier =
+    | Once
+    | Changed
+    | Delay of string
+    | Throttle of string
+    | Target of string
+    | From of [ `Document | `Window | `Closest of string | `Find of string ]
+    | Consume
+    | Queue of [ `First | `Last | `All | `None ]
+    | Load
+        (** Trigged on load (useful for lazy-loading) *)
+    | Revealed
+        (** Triggered when an element is scrolled into the viewport (useful for lazy-loading).
+            If you are using `overflow` you should `intersect once` instead of Revealed *)
+    | Intersect of [ `Default | `Root of string | `Threshold of float ]
+
+  type t = trigger list * modifier list
+
+  let init ?(modifiers = []) triggers = triggers, modifiers
+end
+
 (* TODO: hx-swap-oob? I don't think I understand. Need to look at some more examples. *)
 
 (* Misc Attributes *)
@@ -152,5 +205,35 @@ let push_url status =
   Tyxml.Html.Unsafe.string_attrib "hx-push-url" (Bool.to_string status)
 ;;
 
+let indicator elt =
+  let _ = elt in
+  assert false
+;;
+
 (* TODO: hx-on. Would be very cool to use melange and encode the function name into some script:
           https://htmx.org/attributes/hx-on/ *)
+
+module Headers = struct
+  (* don't expose *)
+  let htmx_truthy_header header req =
+    Dream.headers req header
+    |> List.find ~f:(fun header -> String.(header = "true"))
+    |> Option.is_some
+  ;;
+
+  let is_htmx req = htmx_truthy_header "HX-Request" req
+  let is_boosted req = htmx_truthy_header "HX-Boosted" req
+  let is_history_restore req = htmx_truthy_header "HX-History-Restore-Request" req
+
+  (** This will contain the user response to an hx-prompt *)
+  let get_prompt req = Dream.headers req "HX-Prompt" |> List.hd
+
+  (** This value will be the id of the target element, if it exists *)
+  let get_target_id req = Dream.headers req "HX-Target" |> List.hd
+
+  (** This value will be the id of the triggered element, if it exists *)
+  let get_trigger_id req = Dream.headers req "HX-Trigger" |> List.hd
+
+  (** This value will be the name of the triggered element, if it exists *)
+  let get_trigger_name req = Dream.headers req "HX-Trigger-Name" |> List.hd
+end

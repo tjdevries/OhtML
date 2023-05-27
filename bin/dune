@@ -3,6 +3,8 @@
  (name main)
  (package ohtml)
  (modules main)
+ ; This should make TyXML error messages easier to read? Will try it out later.
+ (flags :standard -short-paths)
  (libraries ohtml hx components dream dream-livereload tyxml models
             caqti caqti-lwt caqti-dynload caqti-driver-sqlite3)
  (preprocess (pps ppx_let lwt_ppx)))
